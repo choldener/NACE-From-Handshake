@@ -3,10 +3,10 @@ Program that allows users to create a NACE sheet from modified Handshake data
 
 ## Usage
 
-Starting the program you will see the following prompt
+Starting the program you will see the following prompt  
 ![First Prompt](https://i.imgur.com/Yyq9X7R.png)
 
-Putting in the required data will give you multiple prompts to chose from in orer to select exactly what sheets are needed.
+Putting in the required data will give you multiple prompts to chose from in orer to select exactly what sheets are needed.  
 ![Output Screen](https://i.imgur.com/ECdDtO8.png)
 
 ## FAQ
