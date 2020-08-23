@@ -29,12 +29,7 @@ def load_cip_data():  # Loads the CIP data (typically from argos report)
     filename = askopenfilename()
     global cip
     cip = pd.read_csv(filename, encoding="ISO-8859-1")
-    canvas1.create_window(350, 250, window=program_data_undergrad_button)
-    canvas1.create_window(350, 200, window=program_data_masters_button)
-    canvas1.create_window(350, 150, window=program_data_doctorate_button)
-    canvas1.create_window(600, 250, window=overall_data_undergrad_button)
-    canvas1.create_window(600, 200, window=overall_data_masters_button)
-    canvas1.create_window(600, 150, window=overall_data_doctorate_button)
+    canvas1.create_window(350, 250, window=compile_document_button)
     canvas1.create_window(500, 200, window=institution_entry)
     cip_button.destroy()
 
@@ -472,12 +467,30 @@ def bachelors_program_data_function():
 
 def bachelors_overall_data_function():
     df = pd.DataFrame(columns=['Institution Name',
-                               'Total Graduated', 'Full-Time', 'Part-Time', 'Entrepreneur Full-Time',
-                               'Entrepreneur Part-Time', 'Temp/Contract FT', 'Temp/Contract PT', 'Freelance  FT', 'Freelance PT',
-                               'Fellowship/Intern FT', 'Fellowship/Intern PT',
-                               'Service', 'Military', 'Continuing Education', 'Seeking Employment', 'Seeking Education',
-                               'Not Seek', 'no info', '# of Salaries (Full-time Employed)', 'Salary Mean', 'Median Salary',
-                               'Recieving Bonus', 'Bonus Mean', 'Bonus Median'])
+                               'Total Graduated',
+                               'Full-Time',
+                               'Part-Time',
+                               'Entrepreneur Full-Time',
+                               'Entrepreneur Part-Time',
+                               'Temp/Contract FT',
+                               'Temp/Contract PT',
+                               'Freelance  FT',
+                               'Freelance PT',
+                               'Fellowship/Intern FT',
+                               'Fellowship/Intern PT',
+                               'Service',
+                               'Military',
+                               'Continuing Education',
+                               'Seeking Employment',
+                               'Seeking Education',
+                               'Not Seek',
+                               'no info',
+                               '# of Salaries (Full-time Employed)',
+                               'Salary Mean',
+                               'Median Salary',
+                               'Receiving Bonus',
+                               'Bonus Mean',
+                               'Bonus Median'])
     data_list = []
     education = 'Bachelors'
     overall_data_variables(education, rawdata=rawdata, institution=institution)
@@ -702,8 +715,8 @@ def doctorate_overall_data_function():
 
 
 def compile_document():
-    # global institution
-    # institution = institution_entry.get()
+    global institution
+    institution = institution_entry.get()
 
     wb = Workbook()
     ws1 = wb.active
@@ -744,23 +757,16 @@ def compile_document():
 
 
 # bachelors_program_data_function()
-compile_document()
+# compile_document()
 
-# root = tk.Tk()
-# canvas1 = tk.Canvas(root, width=700, height=500)
-# canvas1.pack()
-# button_import = tk.Button(root, text='Select .CSV Handshake Data', command=load_data_handshake)
-# canvas1.create_window(350, 250, window=button_import)
-#
-# cip_button = tk.Button(root, text='Select .CSV CIP Data (argos report)', command=load_cip_data)
-#
-# program_data_undergrad_button = tk.Button(root, text='Save Undergraduate program data', command=bachelors_program_data_function)
-# program_data_masters_button = tk.Button(root, text='Save Masters program data', command=masters_program_data_function)
-# program_data_doctorate_button = tk.Button(root, text='Save Doctorate program data', command=doctorate_program_data_function)
-#
-# overall_data_undergrad_button = tk.Button(root, text='Save Undergraduate overall data', command=bachelors_overall_data_function)
-# overall_data_masters_button = tk.Button(root, text='Save Masters overall data', command=masters_overall_data_function)
-# overall_data_doctorate_button = tk.Button(root, text='Save Doctorate overall data', command=doctorate_overall_data_function)
-#
-# institution_entry = tk.Entry(root)
-# root.mainloop()
+root = tk.Tk()
+canvas1 = tk.Canvas(root, width=700, height=500)
+canvas1.pack()
+button_import = tk.Button(root, text='Select .CSV Handshake Data', command=load_data_handshake)
+canvas1.create_window(350, 250, window=button_import)
+
+cip_button = tk.Button(root, text='Select .CSV CIP Data (argos report)', command=load_cip_data)
+institution_entry = tk.Entry(root)  # set institution name
+compile_document_button = tk.Button(root, text='Compile NACE Document', command=compile_document)
+
+root.mainloop()
