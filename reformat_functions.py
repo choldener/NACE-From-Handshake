@@ -1,8 +1,10 @@
 import tkinter as tk
 import pandas as pd
 import numpy as np
-from tkinter.filedialog import asksaveasfile
+from tkinter.filedialog import asksaveasfilename
 from tkinter.filedialog import askopenfilename
+from openpyxl.workbook import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 rawdata = pd.read_csv(
     r"D:\Github\Projects\Belmont-OCPD\Data\2019\csv\Class of 2019 First Destination Survey Raw Data no identifiers scrubbed version 3.3.csv",
@@ -11,6 +13,8 @@ global cip
 cip = pd.read_csv(
     r"D:\Github\Projects\Belmont-OCPD\Data\2019\CIP codes\Argos Report.csv", encoding="ISO-8859-1"
 )
+global institution
+institution = 'Belmont University'
 
 
 def load_data_handshake():  # Loads the handshake data
@@ -31,10 +35,13 @@ def load_cip_data():  # Loads the CIP data (typically from argos report)
     canvas1.create_window(600, 250, window=overall_data_undergrad_button)
     canvas1.create_window(600, 200, window=overall_data_masters_button)
     canvas1.create_window(600, 150, window=overall_data_doctorate_button)
+    canvas1.create_window(500, 200, window=institution_entry)
     cip_button.destroy()
 
 
-def program_data_variables(major, education, rawdata, cip):
+def program_data_variables(major, education, rawdata, cip, institution):
+    program_data_variables.institution = institution
+
     try:
         program_data_variables.CIP_code = cip.loc[cip.MajorDesc == major, 'CIPCode'].values[0]
     except:
@@ -197,7 +204,9 @@ def program_data_variables(major, education, rawdata, cip):
     return ()
 
 
-def overall_data_variables(education, rawdata):
+def overall_data_variables(education, rawdata, institution):
+    overall_data_variables.institution = institution
+
     overall_data_variables.total_graduated = rawdata[(rawdata['Recipient Education Level'] == education)].shape[0]
 
     overall_data_variables.ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
@@ -304,7 +313,8 @@ def associate_program_data_function():
     education_level = rawdata[rawdata["Recipient Education Level"].str.startswith(education, na=False)]
     majors = education_level['Recipient Primary Major'].unique()
     majors = pd.DataFrame(majors, columns=['major'])
-    df = pd.DataFrame(columns=['Academic Program Name',
+    df = pd.DataFrame(columns=['Institution Name',
+                               'Academic Program Name',
                                'CIP Code',
                                'Total Graduated',
                                'Full-Time',
@@ -335,10 +345,10 @@ def associate_program_data_function():
                                'Bonus Low',
                                'Bonus High'])
     for i in majors['major']:
-        program_data_variables(i, education, rawdata=rawdata, cip=cip)
-        print(cip)
+        program_data_variables(i, education, rawdata=rawdata, cip=cip, institution=institution)
         data_list = []
-        df_list = [i,
+        df_list = [program_data_variables.institution,
+                   i,
                    program_data_variables.CIP_code,
                    program_data_variables.total_graduated,
                    program_data_variables.full_time,
@@ -373,15 +383,12 @@ def associate_program_data_function():
             data_list.append(var)
         s = pd.Series(data_list, index=df.columns)
         df = df.append(s, ignore_index=True)
-        print(df)
-    filename = asksaveasfile(defaultextension=".csv",
-                             filetypes=(("Comma-separated values file", "*.csv"),
-                                        ("All Files", "*.*")))
-    df.to_csv(filename, line_terminator='\n')
     return df
 
 
 def associate_overall_data_function():
+    # program_data_variables.institution
+    df = 'df'
     return df
 
 
@@ -390,7 +397,8 @@ def bachelors_program_data_function():
     education_level = rawdata[rawdata["Recipient Education Level"].str.startswith(education, na=False)]
     majors = education_level['Recipient Primary Major'].unique()
     majors = pd.DataFrame(majors, columns=['major'])
-    df = pd.DataFrame(columns=['Academic Program Name',
+    df = pd.DataFrame(columns=['Institution Name',
+                               'Academic Program Name',
                                'CIP Code',
                                'Total Graduated',
                                'Full-Time',
@@ -421,10 +429,10 @@ def bachelors_program_data_function():
                                'Bonus Low',
                                'Bonus High'])
     for i in majors['major']:
-        program_data_variables(i, education, rawdata=rawdata, cip=cip)
-        print(cip)
+        program_data_variables(i, education, rawdata=rawdata, cip=cip, institution=institution)
         data_list = []
-        df_list = [i,
+        df_list = [program_data_variables.institution,
+                   i,
                    program_data_variables.CIP_code,
                    program_data_variables.total_graduated,
                    program_data_variables.full_time,
@@ -459,15 +467,12 @@ def bachelors_program_data_function():
             data_list.append(var)
         s = pd.Series(data_list, index=df.columns)
         df = df.append(s, ignore_index=True)
-    filename = asksaveasfile(defaultextension=".csv",
-                             filetypes=(("Comma-separated values file", "*.csv"),
-                                        ("All Files", "*.*")))
-    df.to_csv(filename, line_terminator='\n')
     return df
 
 
 def bachelors_overall_data_function():
-    df = pd.DataFrame(columns=['Total Graduated', 'Full-Time', 'Part-Time', 'Entrepreneur Full-Time',
+    df = pd.DataFrame(columns=['Institution Name',
+                               'Total Graduated', 'Full-Time', 'Part-Time', 'Entrepreneur Full-Time',
                                'Entrepreneur Part-Time', 'Temp/Contract FT', 'Temp/Contract PT', 'Freelance  FT', 'Freelance PT',
                                'Fellowship/Intern FT', 'Fellowship/Intern PT',
                                'Service', 'Military', 'Continuing Education', 'Seeking Employment', 'Seeking Education',
@@ -475,12 +480,37 @@ def bachelors_overall_data_function():
                                'Recieving Bonus', 'Bonus Mean', 'Bonus Median'])
     data_list = []
     education = 'Bachelors'
-    df_list = [overall_data_variables.total_graduated,
+    overall_data_variables(education, rawdata=rawdata, institution=institution)
+    df_list = [overall_data_variables.institution,
+               overall_data_variables.total_graduated,
                overall_data_variables.ft,
-               overall_data_variables.pt]
+               overall_data_variables.pt,
+               overall_data_variables.entrepreneur_ft,
+               overall_data_variables.entrepreneur_pt,
+               overall_data_variables.temp_contract_ft,
+               overall_data_variables.temp_contract_pt,
+               overall_data_variables.freelance_ft,
+               overall_data_variables.freelance_pt,
+               overall_data_variables.fellowship_intern_ft,
+               overall_data_variables.fellowship_intern_pt,
+               overall_data_variables.outcome_service,
+               overall_data_variables.outcome_military,
+               overall_data_variables.outcome_continue_education,
+               overall_data_variables.outcome_still_looking,
+               overall_data_variables.outcome_seeking_education,
+               overall_data_variables.outcome_not_seeking,
+               overall_data_variables.no_info,
+               overall_data_variables.salaries_ft,
+               overall_data_variables.salaries_mean,
+               overall_data_variables.salaries_median,
+               overall_data_variables.bonus,
+               overall_data_variables.bonus_mean,
+               overall_data_variables.bonus_median
+               ]
     for i in df_list:
         data_list.append(i)
-
+    s = pd.Series(data_list, index=df.columns)
+    df = df.append(s, ignore_index=True)
     return df
 
 
@@ -521,13 +551,14 @@ def masters_program_data_function():
                                'Bonus Median',
                                ])
     for i in majors['major']:
-        program_data_variables(i, education, rawdata=rawdata)
+        program_data_variables(i, education, rawdata=rawdata, cip=cip, institution=institution)
         data_list = []
-        df_list = [i,
+        df_list = [program_data_variables.institution,
+                   i,
                    program_data_variables.total_graduated,
                    program_data_variables.full_time,
                    program_data_variables.part_time,
-                   program_data_variables.faulty_tenure,
+                   program_data_variables.faculty_tenure,
                    program_data_variables.faculty_nontenure,
                    program_data_variables.entrepreneur_ft,
                    program_data_variables.entrepreneur_pt,
@@ -562,14 +593,17 @@ def masters_program_data_function():
         # print(s)
         df = df.append(s, ignore_index=True)
         # print(df)
-    filename = asksaveasfile(defaultextension=".csv",
-                             filetypes=(("Comma-separated values file", "*.csv"),
-                                        ("All Files", "*.*")))
-    df.to_csv(filename, line_terminator='\n')
+    # filename = asksaveasfile(defaultextension=".csv",
+    #                         filetypes=(("Comma-separated values file", "*.csv"),
+    #                                   ("All Files", "*.*")))
+    # df.to_csv(filename, line_terminator='\n')
     return df
 
 
 def masters_overall_data_function():
+    # 'Institution Name',
+    # program_data_variables.institution
+    df = 'df'
     return df
 
 
@@ -578,7 +612,8 @@ def doctorate_program_data_function():
     education_level = rawdata[rawdata["Recipient Education Level"].str.startswith(education, na=False)]
     majors = education_level['Recipient Primary Major'].unique()
     majors = pd.DataFrame(majors, columns=['major'])
-    df = pd.DataFrame(columns=['Academic Program Name',
+    df = pd.DataFrame(columns=['Institution Name',
+                               'Academic Program Name',
                                'CIP Code',
                                'Total Graduated',
                                'Full-Time',
@@ -612,14 +647,15 @@ def doctorate_program_data_function():
                                'Bonus High'
                                ])
     for i in majors['major']:
-        program_data_variables(i, education, rawdata=rawdata)
+        program_data_variables(i, education, rawdata=rawdata, cip=cip, institution=institution)
         data_list = []
-        df_list = [i,
+        df_list = [program_data_variables.institution,
+                   i,
                    program_data_variables.CIP_code,
                    program_data_variables.total_graduated,
                    program_data_variables.full_time,
                    program_data_variables.part_time,
-                   program_data_variables.faulty_tenure,
+                   program_data_variables.faculty_tenure,
                    program_data_variables.faculty_nontenure,
                    program_data_variables.entrepreneur_ft,
                    program_data_variables.entrepreneur_pt,
@@ -649,40 +685,82 @@ def doctorate_program_data_function():
                    ]
         for var in df_list:
             data_list.append(var)
-            # print(var)
-            # print (data_list)
-        # print(data_list)
         s = pd.Series(data_list, index=df.columns)
-        # print(s)
         df = df.append(s, ignore_index=True)
-        # print(df)
-    filename = asksaveasfile(defaultextension=".csv",
-                             filetypes=(("Comma-separated values file", "*.csv"),
-                                        ("All Files", "*.*")))
-    df.to_csv(filename, line_terminator='\n')
+    # filename = asksaveasfile(defaultextension=".csv",
+    #                         filetypes=(("Comma-separated values file", "*.csv"),
+    #                                   ("All Files", "*.*")))
+    # df.to_csv(filename, line_terminator='\n')
     return df
 
 
 def doctorate_overall_data_function():
+    # 'Institution Name',
+    # program_data_variables.institution
+    df = 'df'
     return df
 
 
-bachelors_program_data_function()
+def compile_document():
+    # global institution
+    # institution = institution_entry.get()
 
-root = tk.Tk()
-canvas1 = tk.Canvas(root, width=700, height=500)
-canvas1.pack()
-button_import = tk.Button(root, text='Select .CSV Handshake Data', command=load_data_handshake)
-canvas1.create_window(350, 250, window=button_import)
+    wb = Workbook()
+    ws1 = wb.active
+    ws1.title = "Associate's Summary"
+    ws2 = wb.create_sheet()
+    ws2.title = "Bachelor's Summary"
+    ws3 = wb.create_sheet()
+    ws3.title = "Master's Summary"
+    ws4 = wb.create_sheet()
+    ws4.title = "Ph.D. Summary"
+    ws5 = wb.create_sheet()
+    ws5.title = "Program Data Associate's"
+    ws6 = wb.create_sheet()
+    ws6.title = "Program Data - Bachelor's"
+    ws7 = wb.create_sheet()
+    ws7.title = "Program Data - Master's"
+    ws8 = wb.create_sheet()
+    ws8.title = "Program Data - Doctoral"
+    ws_list = [[ws1, associate_overall_data_function()],
+               [ws2, bachelors_overall_data_function()],
+               [ws3, masters_overall_data_function()],
+               [ws4, doctorate_overall_data_function()],
+               [ws5, associate_program_data_function()],
+               [ws6, bachelors_program_data_function()],
+               [ws7, masters_program_data_function()],
+               [ws8, doctorate_program_data_function()]
+               ]
+    for sheets in ws_list:
+        try:
+            for r in dataframe_to_rows(sheets[1], index=False, header=True):
+                sheets[0].append(r)
+        except:
+            pass
+    filename = asksaveasfilename(defaultextension=".xlsx",
+                                 filetypes=(("Microsoft Excel Open XML Spreadsheet File", "*.xlsx"),
+                                            ("All Files", "*.*")))
+    wb.save(filename)
 
-cip_button = tk.Button(root, text='Select .CSV CIP Data (argos report)', command=load_cip_data)
 
-program_data_undergrad_button = tk.Button(root, text='Save Undergraduate program data', command=bachelors_program_data_function)
-program_data_masters_button = tk.Button(root, text='Save Masters program data', command=masters_program_data_function)
-program_data_doctorate_button = tk.Button(root, text='Save Doctorate program data', command=doctorate_program_data_function)
+# bachelors_program_data_function()
+compile_document()
 
-overall_data_undergrad_button = tk.Button(root, text='Save Undergraduate overall data', command=bachelors_overall_data_function)
-overall_data_masters_button = tk.Button(root, text='Save Masters overall data', command=masters_overall_data_function)
-overall_data_doctorate_button = tk.Button(root, text='Save Doctorate overall data', command=doctorate_overall_data_function)
-
-root.mainloop()
+# root = tk.Tk()
+# canvas1 = tk.Canvas(root, width=700, height=500)
+# canvas1.pack()
+# button_import = tk.Button(root, text='Select .CSV Handshake Data', command=load_data_handshake)
+# canvas1.create_window(350, 250, window=button_import)
+#
+# cip_button = tk.Button(root, text='Select .CSV CIP Data (argos report)', command=load_cip_data)
+#
+# program_data_undergrad_button = tk.Button(root, text='Save Undergraduate program data', command=bachelors_program_data_function)
+# program_data_masters_button = tk.Button(root, text='Save Masters program data', command=masters_program_data_function)
+# program_data_doctorate_button = tk.Button(root, text='Save Doctorate program data', command=doctorate_program_data_function)
+#
+# overall_data_undergrad_button = tk.Button(root, text='Save Undergraduate overall data', command=bachelors_overall_data_function)
+# overall_data_masters_button = tk.Button(root, text='Save Masters overall data', command=masters_overall_data_function)
+# overall_data_doctorate_button = tk.Button(root, text='Save Doctorate overall data', command=doctorate_overall_data_function)
+#
+# institution_entry = tk.Entry(root)
+# root.mainloop()
