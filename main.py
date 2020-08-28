@@ -6,16 +6,6 @@ from tkinter.filedialog import askopenfilename
 from openpyxl.workbook import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 
-# rawdata = pd.read_csv(
-#     r"D:\Github\Projects\Belmont-OCPD\Data\2019\csv\Class of 2019 First Destination Survey Raw Data no identifiers scrubbed version 3.3.csv",
-#     encoding="ISO-8859-1")
-# global cip
-# cip = pd.read_csv(
-#     r"D:\Github\Projects\Belmont-OCPD\Data\2019\CIP codes\Argos Report.csv", encoding="ISO-8859-1"
-# )
-# global institution
-# institution = 'Belmont University'
-
 
 def load_data_handshake():  # Loads the handshake data
     filename = askopenfilename()
