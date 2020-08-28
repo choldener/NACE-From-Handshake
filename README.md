@@ -7,7 +7,7 @@ Starting the program you will see the following prompts
 ![First Prompt](https://i.imgur.com/AakhmwW.png)
 ![Second Prompt](https://i.imgur.com/8x8iWwu.png)
 
-Compiling the output worksheets are done in one button press after inputting the institution name.  
+Compiling the required workbook is done in one button press after inputting the institution name.  
 ![Output Screen](https://i.imgur.com/Xhvktqv.png)
 
 ## FAQ
