@@ -101,6 +101,7 @@ def program_data_variables(major, education, rawdata, cip, institution):
                     (rawdata['Recipient Education Level'] == education) &
                     (rawdata['Is Fellowship?'] == 'Yes')].shape[0]
     program_data_variables.fellowship_intern_pt = data1 + data2
+     program_data_variables.fellowship_intern_pt = data1 + data2
 
     program_data_variables.outcome_service = rawdata[(rawdata['Recipient Primary Major'] == major) &
                                                      (rawdata['Recipient Education Level'] == education) &
