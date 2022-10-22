@@ -1,3 +1,7 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+warnings.simplefilter(action='ignore', category=RuntimeWarning)
+
 import tkinter as tk
 import pandas as pd
 import numpy as np
@@ -5,6 +9,7 @@ from tkinter.filedialog import asksaveasfilename
 from tkinter.filedialog import askopenfilename
 from openpyxl.workbook import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+
 
 
 def load_data_handshake():  # Loads the handshake data
@@ -27,170 +32,155 @@ def load_cip_data():  # Loads the CIP data (typically from argos report)
 
 def program_data_variables(major, education, rawdata, cip, institution):
     program_data_variables.institution = institution
-
     try:
         program_data_variables.CIP_code = cip.loc[cip.MajorDesc == major, 'CIPCode'].values[0]
     except:
         program_data_variables.CIP_code = np.nan
+    rawdata = rawdata[( rawdata['Recipient Primary Major'] == major) & (rawdata['Recipient Education Level'] == education)]
+    program_data_variables.total_graduated = rawdata.shape[0]
 
-    program_data_variables.total_graduated = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                     (rawdata['Recipient Education Level'] == education)].shape[0]
+    f = open('C:/Users/User/Documents/GitHub/NACE-From-Handshake/test.json')
+    #print(f)
+    data = json.load(f)
+    #print(data)
+    #print(type(data))
+    for tab_name in data:
+        print(tab_name)
+        value = rawdata
+        for test in data[tab_name]:
+            print(test)
+            print(data[tab_name][test])
+            value = value[value[test] == data[tab_name][test]]
+        name = tab_name.replace(' ', '_')
+        setattr(self, name, value)
+    # Closing file
+    f.close()
 
-    program_data_variables.full_time = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                               (rawdata['Recipient Primary Major'] == major) &
-                                               (rawdata['Recipient Education Level'] == education)].shape[0]
+    
 
-    program_data_variables.part_time = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                               (rawdata['Recipient Primary Major'] == major) &
-                                               (rawdata['Recipient Education Level'] == education)].shape[0]
+    program_data_variables.full_time = rawdata[(rawdata['Employment Type'] == 'Full-Time')].shape[0]
+
+    program_data_variables.part_time = rawdata[(rawdata['Employment Type'] == 'Part-Time')].shape[0]
 
     program_data_variables.entrepreneur_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                                     (rawdata['Recipient Primary Major'] == major) &
-                                                     (rawdata['Recipient Education Level'] == education) &
                                                      (rawdata['Employment Category'] == 'Entrepreneur')].shape[0]
 
-    program_data_variables.entrepreneur_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                                     (rawdata['Recipient Primary Major'] == major) &
-                                                     (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.entrepreneur_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &     
                                                      (rawdata['Employment Category'] == 'Entrepreneur')].shape[0]
 
-    program_data_variables.temp_contract_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                                      (rawdata['Recipient Primary Major'] == major) &
-                                                      (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.temp_contract_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &                                
                                                       (rawdata['Employment Category'] == 'Temporary/Contract Work Assignment')].shape[0]
 
-    program_data_variables.temp_contract_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                                      (rawdata['Recipient Primary Major'] == major) &
-                                                      (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.temp_contract_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &                                           
                                                       (rawdata['Employment Category'] == 'Temporary/Contract Work Assignment')].shape[0]
 
-    program_data_variables.freelance_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                                  (rawdata['Recipient Primary Major'] == major) &
-                                                  (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.freelance_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &                                      
                                                   (rawdata['Employment Category'] == 'Freelancer')].shape[0]
 
     program_data_variables.freelance_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                                  (rawdata['Recipient Primary Major'] == major) &
-                                                  (rawdata['Recipient Education Level'] == education) &
                                                   (rawdata['Employment Category'] == 'Freelancer')].shape[0]
 
-    program_data_variables.faculty_tenure = rawdata[(rawdata['Recipient Education Level'] == education) &
-                                                    (rawdata['Recipient Primary Major'] == major) &
-                                                    (rawdata['Employment Category'] == 'Faculty Tenure')].shape[0]
-
-    program_data_variables.faculty_nontenure = rawdata[(rawdata['Recipient Education Level'] == education) &
-                                                       (rawdata['Recipient Primary Major'] == major) &
-                                                       (rawdata['Employment Category'] == 'Faculty Non-Tenure')].shape[0]
-
-    data1 = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Primary Major'] == major) &
-                    (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.faculty_tenure = rawdata[(rawdata['Employment Category'] == 'Faculty Tenure')].shape[0]
+    program_data_variables.faculty_nontenure = rawdata[(rawdata['Employment Category'] == 'Faculty Non-Tenure')].shape[0]
+    data1 = rawdata[(rawdata['Employment Type'] == 'Full-Time') &           
                     (rawdata['Internship'] == 'Yes')].shape[0]
     data2 = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Primary Major'] == major) &
-                    (rawdata['Recipient Education Level'] == education) &
                     (rawdata['Is Fellowship?'] == 'Yes')].shape[0]
     program_data_variables.fellowship_intern_ft = data1 + data2
-
     data1 = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                    (rawdata['Recipient Primary Major'] == major) &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
+                     
                     (rawdata['Internship'] == 'Yes')].shape[0]
     data2 = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                    (rawdata['Recipient Primary Major'] == major) &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
+                     
                     (rawdata['Is Fellowship?'] == 'Yes')].shape[0]
     program_data_variables.fellowship_intern_pt = data1 + data2
 
-    program_data_variables.outcome_service = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                     (rawdata['Recipient Education Level'] == education) &
-                                                     (rawdata['Outcome'] == 'Volunteering')].shape[0]
+    program_data_variables.outcome_service = rawdata[(rawdata['Outcome'] == 'Volunteering')].shape[0]
 
-    program_data_variables.outcome_military = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                      (rawdata['Recipient Education Level'] == education) &
-                                                      (rawdata['Outcome'] == 'Military')].shape[0]
+    program_data_variables.outcome_military = rawdata[(rawdata['Outcome'] == 'Military')].shape[0]
 
-    program_data_variables.outcome_continue_education = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                                (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.outcome_continue_education = rawdata[ 
+                                                                 
                                                                 (rawdata['Outcome'] == 'Continuing Education')].shape[0]
 
-    program_data_variables.outcome_still_looking = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                           (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.outcome_still_looking = rawdata[ 
+                                                            
                                                            (rawdata['Still Looking Option'] == 'Employment')].shape[0]
 
-    program_data_variables.outcome_seeking_education = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                               (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.outcome_seeking_education = rawdata[ 
+                                                                
                                                                (rawdata['Still Looking Option'] == 'Continuing Education')].shape[0]
 
-    program_data_variables.outcome_not_seeking = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                                         (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.outcome_not_seeking = rawdata[ 
+                                                          
                                                          (rawdata['Outcome'] == 'Not Seeking')].shape[0]
 
-    program_data_variables.no_info = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                                             (rawdata['Recipient Education Level'] == education) &
+    program_data_variables.no_info = rawdata[ 
+                                              
                                              (pd.isna(rawdata['Outcome']))].shape[0]
 
-    program_data_variables.salaries_ft = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    program_data_variables.salaries_ft = rawdata[ 
                                                  (rawdata['Employment Type'] == 'Full-Time') &
-                                                 (rawdata['Recipient Education Level'] == education) &
+                                                  
                                                  (rawdata['Annual Salary'])].shape[0]
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Annual Salary'])]
     program_data_variables.salaries_mean = np.mean(data1['Annual Salary'])
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Annual Salary'])]
     program_data_variables.salaries_median = np.median(data1['Annual Salary'])
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Annual Salary'])]
     program_data_variables.salaries_low = (data1['Annual Salary'].min())
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Annual Salary'])]
     program_data_variables.salaries_high = (data1['Annual Salary'].max())
 
-    program_data_variables.bonus = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    program_data_variables.bonus = rawdata[ 
                                            (rawdata['Employment Type'] == 'Full-Time') &
-                                           (rawdata['Recipient Education Level'] == education) &
+                                            
                                            (rawdata['Bonus Amount'] != 0) & (pd.notna(rawdata['Bonus Amount']))].shape[0]
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
-                    (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+    data1 = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
                     (rawdata['Bonus Amount'] != 0) & (pd.notna(rawdata['Bonus Amount']))]
     program_data_variables.bonus_mean = np.mean(data1['Bonus Amount'])
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Bonus Amount'] != 0) & (pd.notna(rawdata['Bonus Amount']))]
     program_data_variables.bonus_median = np.median(data1['Bonus Amount'])
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Bonus Amount'] != 0) & (pd.notna(rawdata['Bonus Amount']))]
     program_data_variables.bonus_low = data1['Bonus Amount'].min()
 
-    data1 = rawdata[(rawdata['Recipient Primary Major'] == major) &
+    data1 = rawdata[ 
                     (rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Bonus Amount'] != 0) & (pd.notna(rawdata['Bonus Amount']))]
     program_data_variables.bonus_high = data1['Bonus Amount'].max()
     return ()
 
 
 def overall_data_variables(education, rawdata, institution):
+    rawdata = rawdata[rawdata['Recipient Education Level'] == education]
     overall_data_variables.institution = institution
 
     overall_data_variables.total_graduated = rawdata[(rawdata['Recipient Education Level'] == education)].shape[0]
@@ -201,98 +191,97 @@ def overall_data_variables(education, rawdata, institution):
     overall_data_variables.pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
                                         (rawdata['Recipient Education Level'] == education)].shape[0]
 
-    overall_data_variables.faculty_tenure = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.faculty_tenure = rawdata[ 
                                                     (rawdata['Employment Category'] == 'Faculty Tenure')].shape[0]
 
-    overall_data_variables.faculty_nontenure = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.faculty_nontenure = rawdata[ 
                                                        (rawdata['Employment Category'] == 'Faculty Non-Tenure')].shape[0]
 
     overall_data_variables.entrepreneur_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                                     (rawdata['Recipient Education Level'] == education) &
+                                                      
                                                      (rawdata['Employment Category'] == 'Entrepreneur')].shape[0]
 
     overall_data_variables.entrepreneur_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                                     (rawdata['Recipient Education Level'] == education) &
+                                                      
                                                      (rawdata['Employment Category'] == 'Entrepreneur')].shape[0]
 
     overall_data_variables.temp_contract_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                                      (rawdata['Recipient Education Level'] == education) &
+                                                       
                                                       (rawdata['Employment Category'] == 'Temporary/Contract Work Assignment')].shape[0]
 
     overall_data_variables.temp_contract_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                                      (rawdata['Recipient Education Level'] == education) &
+                                                       
                                                       (rawdata['Employment Category'] == 'Temporary/Contract Work Assignment')].shape[0]
 
     overall_data_variables.freelance_ft = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                                                  (rawdata['Recipient Education Level'] == education) &
+                                                   
                                                   (rawdata['Employment Category'] == 'Freelancer')].shape[0]
 
     overall_data_variables.freelance_pt = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                                                  (rawdata['Recipient Education Level'] == education) &
+                                                   
                                                   (rawdata['Employment Category'] == 'Freelancer')].shape[0]
 
     data1 = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Internship'] == 'Yes')].shape[0]
     data2 = rawdata[(rawdata['Employment Type'] == 'Full-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Is Fellowship?'] == 'Yes')].shape[0]
     overall_data_variables.fellowship_intern_ft = data1 + data2
 
     data1 = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Internship'] == 'Yes')].shape[0]
     data2 = rawdata[(rawdata['Employment Type'] == 'Part-Time') &
-                    (rawdata['Recipient Education Level'] == education) &
+                     
                     (rawdata['Is Fellowship?'] == 'Yes')].shape[0]
     overall_data_variables.fellowship_intern_pt = data1 + data2
 
-    overall_data_variables.outcome_service = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.outcome_service = rawdata[ 
                                                      (rawdata['Outcome'] == 'Volunteering')].shape[0]
 
-    overall_data_variables.outcome_military = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.outcome_military = rawdata[ 
                                                       (rawdata['Outcome'] == 'Military')].shape[0]
 
-    overall_data_variables.outcome_continue_education = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.outcome_continue_education = rawdata[ 
                                                                 (rawdata['Outcome'] == 'Continuing Education')].shape[0]
 
-    overall_data_variables.outcome_still_looking = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.outcome_still_looking = rawdata[ 
                                                            (rawdata['Still Looking Option'] == 'Employment')].shape[0]
 
-    overall_data_variables.outcome_seeking_education = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.outcome_seeking_education = rawdata[ 
                                                                (rawdata['Still Looking Option'] == 'Continuing Education')].shape[0]
 
-    overall_data_variables.outcome_not_seeking = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.outcome_not_seeking = rawdata[ 
                                                          (rawdata['Outcome'] == 'Not Seeking')].shape[0]
 
-    overall_data_variables.no_info = rawdata[(rawdata['Recipient Education Level'] == education) &
-                                             (pd.isna(rawdata['Outcome']))].shape[0]
+    overall_data_variables.no_info = rawdata[(pd.isna(rawdata['Outcome']))].shape[0]
 
-    overall_data_variables.salaries_ft = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.salaries_ft = rawdata[ 
                                                  (rawdata['Employment Type'] == 'Full-Time') &
                                                  (rawdata['Annual Salary'])].shape[0]
 
-    data = rawdata[(rawdata['Recipient Education Level'] == education) &
+    data = rawdata[ 
                    (rawdata['Employment Type'] == 'Full-Time') &
                    (rawdata['Annual Salary'])]
     overall_data_variables.salaries_mean = np.mean(data['Annual Salary'])
 
-    data = rawdata[(rawdata['Recipient Education Level'] == education) &
+    data = rawdata[ 
                    (rawdata['Employment Type'] == 'Full-Time') &
                    (rawdata['Annual Salary'])]
     overall_data_variables.salaries_median = np.median(data['Annual Salary'])
 
-    overall_data_variables.bonus = rawdata[(rawdata['Recipient Education Level'] == education) &
+    overall_data_variables.bonus = rawdata[ 
                                            (rawdata['Employment Type'] == 'Full-Time') &
                                            (rawdata['Bonus Amount'] != 0) & (pd.notna(rawdata['Bonus Amount']))].shape[0]
 
-    data = rawdata[(rawdata['Recipient Education Level'] == education) &
+    data = rawdata[ 
                    (rawdata['Employment Type'] == 'Full-Time') &
                    (rawdata['Bonus Amount'] != 0) &
                    (pd.notna(rawdata['Bonus Amount']))]
     overall_data_variables.bonus_mean = np.mean(data['Bonus Amount'])
 
-    data = rawdata[(rawdata['Recipient Education Level'] == education) &
+    data = rawdata[ 
                    (rawdata['Employment Type'] == 'Full-Time') &
                    (rawdata['Bonus Amount'] != 0) &
                    (pd.notna(rawdata['Bonus Amount']))]
