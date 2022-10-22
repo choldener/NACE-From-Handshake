@@ -1,0 +1,25 @@
+{
+	"Full_Time": {
+		"Employment Type": "Full-Time"
+	},
+	"Part_Time": {
+		"Employment Type": "Part-Time"
+	},
+	"Entrepreneur Full-Time": {
+		"Employment Type": "Full-Time",
+		"Employment Category": "Entrepreneur"
+	},
+	"Entrepreneur Part-Time":{
+	   	"Employment Type": "Part-Time",
+		"Employment Category": "Entrepreneur"
+   },
+	"Salary Mean":{
+		"Conditional": "np.mean",
+		"Employment Type": "Full-Time",
+		"Annual Salary": ""
+	},
+	"no info":{
+	   "Conditional": "pd.isna",
+	   "Outcome": ""
+   }
+}
