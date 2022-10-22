@@ -15,7 +15,7 @@ def processJson(json_data, rawdata, education, major):
     raw_size = rawdata.shape[0]
 
     #print(json_data)
-
+    processJson.total_graduated = rawdata[(rawdata['Recipient Education Level'] == education)].shape[0]
     for tab_name in json_data:
         data = rawdata
         py_function_bool = False
@@ -72,6 +72,7 @@ def create_df_overall(json_data, rawdata, education):
     processJson(json_data, rawdata, education, "")
     df_columns = []
     df_list = []
+    df_columns.append("Total Graduated")
     for tab_name in json_data:
         df_columns.append(tab_name)
         name = tab_name.replace(' ', '_').replace('-', '_').replace('/', '_').replace('#', 'num').replace('(', '').replace(')', '')
@@ -79,6 +80,7 @@ def create_df_overall(json_data, rawdata, education):
 
     df = pd.DataFrame(columns=df_columns)
     data_list = []
+    data_list.append(processJson.total_graduated)
     for i in df_list:
         data_list.append(i)
     s = pd.Series(data_list, index=df.columns)
@@ -91,22 +93,24 @@ def create_df_majors(json_data, rawdata, education):
     df_columns = []
     
     df_columns.append("Academic Program Name")
+    df_columns.append("Total Graduated")
     for tab_name in json_data:
         df_columns.append(tab_name)
     df = pd.DataFrame(columns=df_columns)
-    print(df)
+    #print(df)
     for major in majors:
         processJson(json_data, rawdata, education, major)
         data_list = []
         df_list = []
-        df_list.append(major)
+        data_list.append(major)
+        data_list.append(processJson.total_graduated)
         for tab_name in json_data:
             #df_columns.append(tab_name)
             name = tab_name.replace(' ', '_').replace('-', '_').replace('/', '_').replace('#', 'num').replace('(', '').replace(')', '')
             exec('df_list.append(processJson.'+name+')')
         for var in df_list:
             data_list.append(var)
-        print(data_list)
+        #print(data_list)
         s = pd.Series(data_list, index=df.columns)
         df = df.append(s, ignore_index=True)
     return df
