@@ -13,13 +13,40 @@
 	   	"Employment Type": "Part-Time",
 		"Employment Category": "Entrepreneur"
    },
+	"Temp/Contract FT":{
+		"Employment Type": "Full-Time",
+		"Employment Category": "Temporary/Contract Work Assignment"
+	},
+	"Temp/Contract PT":{
+		"Employment Type": "Part-Time",
+		"Employment Category": "Temporary/Contract Work Assignment"
+	},
+	"Freelance  FT":{},
+	"Freelance PT":{},
+	"Fellowship/Intern FT":{},
+	"Fellowship/Intern PT":{},
+	"service":{},
+	"Military":{},
+	"Continuing Education":{},
+	"Seeking Employment":{},
+	"Seeking Education":{},
+	"Not Seek":{},
+	"no info":{
+		"Py Function": "pd.isna",
+		"Outcome": ""
+	},
+	"# of Salaries (Full-time Employed)":{},
+	"Salary Mean":{},
+	"Median Salary":{},
+	"Salary Low":{},
+	"Salary High":{},
+	"Bonus Numbers":{},
 	"Salary Mean":{
-		"Conditional": "np.mean",
+		"Py Function": "np.mean",
 		"Employment Type": "Full-Time",
 		"Annual Salary": ""
 	},
-	"no info":{
-	   "Conditional": "pd.isna",
-	   "Outcome": ""
-   }
+	"Bonus Median":{},
+	"Bonus Low":{},
+	"Bonus High":{}	
 }
